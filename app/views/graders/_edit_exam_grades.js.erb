@@ -1,0 +1,48 @@
+$(function() {
+  $.tablesorter.themes.bootstrap = {
+    caption      : 'caption',
+    sortNone     : '',
+    sortAsc      : '',
+    sortDesc     : '',
+    active       : '', // applied when column is sorted
+    hover        : '', // custom css required - a defined bootstrap style may not override other classes
+    // icon class names
+    icons        : '', // add "icon-white" to make them white; this icon class is added to the <i> in the header
+    iconSortAsc  : 'glyphicon glyphicon-chevron-up', // class name added to icon when column has ascending sort
+    iconSortDesc : 'glyphicon glyphicon-chevron-down', // class name added to icon when column has descending sort
+    filterRow    : '', // filter row class; use widgetOptions.filter_cssFilter for the input/select element
+    footerRow    : '',
+    footerCells  : '',
+    even         : '', // even row zebra striping
+    odd          : ''  // odd row zebra striping
+  };
+  $("#grades-table").tablesorter({
+    headerTemplate: "{content} {icon}",
+    theme: "bootstrap",
+    widgets: ['uitheme']
+  });
+  $('.spinner').each(function() {
+    activateSpinner(this, {precision: 1})
+      .change(function() {
+        var row = $(this).closest("tr");
+        var scores = $(row).find("div.spinner input").toArray();
+        var curved = Number.parseFloat($(scores[scores.length - 1]).val());
+        if (curved && curved !== "")
+          row.find("td:last").text(curved);
+        else {
+          var sum = 0;
+          for (var i = 0; i < scores.length - 1; i++) {
+            var val = $(scores[i]).val();
+            if (val && val !== "") {
+              sum += Number.parseFloat(val);
+            }
+          }
+          row.find("td:last").text(sum);
+        }
+      }).change();
+  });
+});
+
+$("form").submit(function() {
+  return confirm("Are you sure?");
+});
