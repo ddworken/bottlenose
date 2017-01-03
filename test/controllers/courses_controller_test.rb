@@ -67,7 +67,7 @@ class CoursesControllerTest < ActionController::TestCase
     sign_in @fred
 
     lateness = create(:lateness_config, type: "FixedDaysConfig", days_per_assignment: 1)
-    gc = create(:grader_config, type: "ManualGrader", avail_score: 50)
+    gc = create(:grader, type: "ManualGrader", avail_score: 50)
     a1 = create(:assignment,
                 course: @course1,
                 due_date: (Time.now + 5.days),

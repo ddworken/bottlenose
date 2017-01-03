@@ -25,12 +25,12 @@ class CoursesController < ApplicationController
         # hang on to the assignment id
         # only keep unfinished graders
         # sort the assignments
-        Grader
-        .joins("INNER JOIN subs_for_gradings ON graders.submission_id = subs_for_gradings.submission_id")
+        Grade
+        .joins("INNER JOIN subs_for_gradings ON grades.submission_id = subs_for_gradings.submission_id")
         .joins("INNER JOIN assignments ON subs_for_gradings.assignment_id = assignments.id")
         .joins("INNER JOIN registrations ON subs_for_gradings.user_id = registrations.user_id")
         .where("assignments.course_id": @course.id)
-        .select("graders.*", "subs_for_gradings.assignment_id")
+        .select("grades.*", "subs_for_gradings.assignment_id")
         .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
         .select("users.name AS user_name")
         .where(score: nil)
@@ -65,9 +65,9 @@ class CoursesController < ApplicationController
         Submission
         .joins("INNER JOIN subs_for_gradings ON submissions.id = subs_for_gradings.submission_id")
         .where("subs_for_gradings.assignment_id": @assns.map(&:id))
-        .joins("INNER JOIN graders ON graders.submission_id = submissions.id")
-        .where.not("graders.score": nil)
-        .where("graders.available": false)
+        .joins("INNER JOIN grades ON grades.submission_id = submissions.id")
+        .where.not("grades.score": nil)
+        .where("grades.available": false)
         .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
         .order("users.name")
         .select("DISTINCT submissions.*", "users.name AS user_name")

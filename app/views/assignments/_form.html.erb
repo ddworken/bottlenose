@@ -327,11 +327,11 @@
   <div class="for-type form-group">
     <div id="create-graders" class="files-type">
       <p><strong>Graders</strong></p>
-      <%= fields_for "graders[]", GraderConfig.new do |graders| %>
+      <%= fields_for "graders[]", Grader.new do |graders| %>
       <ol id="grader-defns">
-        <% unique_configs = GraderConfig.unique %>
-        <% usage_counts = Grader.group(:grader_config_id).count %>
-        <% @assignment.grader_configs.each do |conf| %>
+        <% unique_configs = Grader.unique %>
+        <% usage_counts = Grade.group(:grader_id).count %>
+        <% @assignment.graders.each do |conf| %>
         <li class="grader"><%= graders.fields_for "", conf do |g| %>
           <%= render("graders/picker", f_grader: g, 
               target: conf, new_grader: "graderconf#{conf.id}",
@@ -339,7 +339,7 @@
           <% end %></li>
         <% end %>
       </ol>
-      <% grader_text = fields_for("graders", GraderConfig.new, :index => "new_grader") do |g|
+      <% grader_text = fields_for("graders", Grader.new, :index => "new_grader") do |g|
       render "graders/picker",
       f_grader: g, target: g.object, unique_configs: unique_configs, usage_counts: usage_counts
       end %>

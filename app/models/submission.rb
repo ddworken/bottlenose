@@ -11,7 +11,7 @@ class Submission < ActiveRecord::Base
   belongs_to :upload
   belongs_to :comments_upload, class_name: "Upload"
   has_many :subs_for_gradings, dependent: :destroy
-  has_many :graders
+  has_many :grades
   has_many :user_submissions, dependent: :destroy
   has_many :users, through: :user_submissions
   has_many :inline_comments, dependent: :destroy
@@ -150,7 +150,7 @@ class Submission < ActiveRecord::Base
   end
 
   def visible_inline_comments
-    self.inline_comments.joins(:grader).where("graders.available": true)
+    self.inline_comments.joins(:grade).where("grades.available": true)
   end
   
   def comments_upload_file=(data)
@@ -212,7 +212,7 @@ class Submission < ActiveRecord::Base
   
   def autograde!
     complete = true
-    assignment.grader_configs.each do |c|
+    assignment.graders.each do |c|
       begin
         complete = complete and c.autograde?
         c.autograde!(assignment, self) # make sure we create all needed graders
@@ -230,7 +230,7 @@ class Submission < ActiveRecord::Base
     score = 0.0
     max_score = 0.0
     log = ""
-    self.graders.each do |g|
+    self.grades.each do |g|
       return if g.score.nil?
       component_weight = g.grader_config.avail_score.to_f
       grade_component = component_weight * (g.score.to_f / g.out_of.to_f)

@@ -514,8 +514,8 @@ class AssignmentsController < CoursesController
     return no_problems unless no_problems
 
 
-    GraderConfig.transaction do
-      existing_confs = @assignment.grader_configs.to_a
+    Grader.transaction do
+      existing_confs = @assignment.graders.to_a
       existing_ags = @assignment.assignment_graders.to_a
       max_order = existing_ags.reduce(0) do |acc, ag| [acc, ag.order].max end
       existing_confs.each do |c|
@@ -538,14 +538,14 @@ class AssignmentsController < CoursesController
 
       graders.each do |k, conf|
         next if conf[:removed]
-        c = GraderConfig.new(conf)
+        c = Grader.new(conf)
         if c.invalid? or !c.save
           no_problems = false
           @assignment.errors.add(:graders, "Could not create grader #{c.to_s}")
           raise ActiveRecord::Rollback
         else
           AssignmentGrader
-            .find_or_initialize_by(assignment_id: @assignment.id, grader_config_id: c.id)
+            .find_or_initialize_by(assignment_id: @assignment.id, grader_id: c.id)
             .update(order: max_order)
           max_order += 1
         end

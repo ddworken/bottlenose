@@ -20,11 +20,11 @@ class Gradesheet
 
     @assignment = assignment
     @submissions = submissions
-    @configs = @assignment.assignment_graders.order(:order).includes(:grader_config).map{ |c| c.grader_config }
+    @configs = @assignment.assignment_graders.order(:order).includes(:grader).map{ |c| c.grader }
     @max_score = @configs.sum(&:avail_score)
-    raw_graders = Grader.where(submission_id: @submissions.map(&:id))
-    @graders = raw_graders.group_by(&:submission_id)
-    @missing_graders = (raw_graders.count < @configs.count * @submissions.count)
+    raw_grades = Grade.where(submission_id: @submissions.map(&:id))
+    @graders = raw_grades.group_by(&:submission_id)
+    @missing_graders = (raw_grades.count < @configs.count * @submissions.count)
 
     @raw_score = 0
     @grades = {configs: @configs, grades: []}
@@ -33,7 +33,7 @@ class Gradesheet
       b_scores = {raw_score: 0.0, scores: []}
       res = {sub: s, staff_scores: s_scores, blind_scores: b_scores}
       @configs.each do |c|
-        g = if @graders[s.id].nil? then nil else @graders[s.id].find do |g| g.grader_config_id == c.id end end
+        g = if @graders[s.id].nil? then nil else @graders[s.id].find do |g| g.grader_id == c.id end end
         if g
           if g.out_of.nil?
             scaled = g.score

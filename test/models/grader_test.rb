@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class GraderConfigTest < ActiveSupport::TestCase
+class GraderTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end

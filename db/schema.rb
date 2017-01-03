@@ -11,18 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170102150940) do
+ActiveRecord::Schema.define(version: 20170102202458) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "assignment_graders", force: :cascade do |t|
-    t.integer "assignment_id",    null: false
-    t.integer "grader_config_id", null: false
+    t.integer "assignment_id", null: false
+    t.integer "grader_id",     null: false
     t.integer "order"
   end
 
-  add_index "assignment_graders", ["assignment_id", "grader_config_id"], name: "unique_assignment_graders", unique: true, using: :btree
+  add_index "assignment_graders", ["assignment_id", "grader_id"], name: "unique_assignment_graders", unique: true, using: :btree
   add_index "assignment_graders", ["assignment_id"], name: "index_assignment_graders_on_assignment_id", using: :btree
 
   create_table "assignments", force: :cascade do |t|
@@ -90,32 +90,32 @@ ActiveRecord::Schema.define(version: 20170102150940) do
 
   add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
-  create_table "grader_configs", force: :cascade do |t|
+  create_table "graders", force: :cascade do |t|
     t.string  "type"
     t.float   "avail_score"
     t.string  "params"
     t.integer "upload_id"
   end
 
-  create_table "graders", force: :cascade do |t|
-    t.integer  "grader_config_id",                 null: false
-    t.integer  "submission_id",                    null: false
+  create_table "grades", force: :cascade do |t|
+    t.integer  "grader_id",                      null: false
+    t.integer  "submission_id",                  null: false
     t.string   "grading_output"
     t.text     "notes"
     t.float    "score"
     t.float    "out_of"
     t.datetime "updated_at"
-    t.boolean  "available",        default: false
+    t.boolean  "available",      default: false
   end
 
-  add_index "graders", ["submission_id"], name: "index_graders_on_submission_id", using: :btree
+  add_index "grades", ["submission_id"], name: "index_grades_on_submission_id", using: :btree
 
   create_table "inline_comments", force: :cascade do |t|
     t.integer  "submission_id",                 null: false
     t.string   "title",                         null: false
     t.string   "filename",                      null: false
     t.integer  "line",                          null: false
-    t.integer  "grader_id",                     null: false
+    t.integer  "grade_id",                      null: false
     t.integer  "user_id"
     t.string   "label",                         null: false
     t.integer  "severity",                      null: false
@@ -128,7 +128,7 @@ ActiveRecord::Schema.define(version: 20170102150940) do
   end
 
   add_index "inline_comments", ["filename"], name: "index_inline_comments_on_filename", using: :btree
-  add_index "inline_comments", ["submission_id", "grader_id", "line"], name: "index_inline_comments_on_submission_id_and_grader_id_and_line", using: :btree
+  add_index "inline_comments", ["submission_id", "grade_id", "line"], name: "index_inline_comments_on_submission_id_and_grade_id_and_line", using: :btree
 
   create_table "lateness_configs", force: :cascade do |t|
     t.string  "type"

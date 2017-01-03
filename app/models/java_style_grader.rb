@@ -2,7 +2,7 @@ require 'open3'
 require 'tap_parser'
 require 'audit'
 
-class JavaStyleGrader < GraderConfig
+class JavaStyleGrader < Grader
   def autograde?
     true
   end

@@ -2,7 +2,7 @@ require 'open3'
 require 'tap_parser'
 require 'audit'
 
-class CheckerGrader < GraderConfig
+class CheckerGrader < Grader
   validates :upload, presence: true
   validates :params, length: {minimum: 3}
   

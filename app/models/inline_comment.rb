@@ -1,7 +1,7 @@
 class InlineComment < ActiveRecord::Base
   belongs_to :submission
   belongs_to :user
-  belongs_to :grader
+  belongs_to :grade
   enum severity: [:error, :warning, :info]
 
   def upload_filename

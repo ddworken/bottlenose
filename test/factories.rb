@@ -47,14 +47,14 @@ FactoryGirl.define do
     association :instructor, factory: :user
   end
 
-  factory :grader_config do
+  factory :grader do
     type "ManualGrader"
     avail_score 100.0
     params ""
   end
 
   factory :assignment_grader do
-    grader_config
+    grader
     assignment
     order 0
   end

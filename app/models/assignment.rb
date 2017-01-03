@@ -20,7 +20,7 @@ class Assignment < ActiveRecord::Base
   has_many :subs_for_gradings, :dependent => :destroy
 
   has_many :assignment_graders, :dependent => :destroy
-  has_many :grader_configs, through: :assignment_graders
+  has_many :graders, through: :assignment_graders
 
   validates :name,      :uniqueness => { :scope => :course_id }
   validates :name,      :presence => true

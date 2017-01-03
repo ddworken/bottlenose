@@ -3,7 +3,7 @@ require 'tap_parser'
 require 'audit'
 require 'container'
 
-class SandboxGrader < GraderConfig
+class SandboxGrader < Grader
   def autograde?
     true
   end
