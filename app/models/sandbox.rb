@@ -1,7 +1,7 @@
 
 require 'container'
 
-class Sandbox < ActiveRecord::Base
+class Sandbox < ApplicationRecord
   before_destroy :stop_container
 
   def container

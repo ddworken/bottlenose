@@ -21,7 +21,7 @@ class MainControllerTest < ActionController::TestCase
 
     num_deliveries = ActionMailer::Base.deliveries.size
 
-    post :resend_auth, :email => ken_email
+    post :resend_auth, params: { :email => ken_email }
 
     assert_equal ActionMailer::Base.deliveries.size, num_deliveries + 1,
       "email should be sent"
@@ -39,7 +39,7 @@ class MainControllerTest < ActionController::TestCase
 
     num_deliveries = ActionMailer::Base.deliveries.size
 
-    post :resend_auth, :email => @alan.email
+    post :resend_auth, params: { email: @alan.email }
 
     assert_equal ActionMailer::Base.deliveries.size, num_deliveries + 1,
       "email should be sent"
@@ -50,7 +50,7 @@ class MainControllerTest < ActionController::TestCase
   test "user can log in" do
     skip
 
-    post :auth, {:email => @alan.email, :key => @alan.auth_key}
+    post :auth, params: {:email => @alan.email, :key => @alan.auth_key}
     assert_match "Logged in", flash[:notice]
     assert_equal session[:user_id], @alan.id
 
@@ -60,7 +60,7 @@ class MainControllerTest < ActionController::TestCase
   test "John can't log in as Alan" do
     skip
 
-    post :auth, {:email => @alan.email, :key => @john.auth_key}
+    post :auth, params: {:email => @alan.email, :key => @john.auth_key}
     assert_match "Authentication failed", flash[:error]
     assert_nil session[:user_id]
 

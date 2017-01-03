@@ -1,9 +1,9 @@
 class ApplicationController < ActionController::Base
   impersonates :user
 
-  rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
-    render :text => exception, :status => 500
-  end
+  #rescue_from DeviseLdapAuthenticatable::LdapException do |exception|
+  #  render :text => exception, :status => 500
+  #end
   protect_from_forgery
 
   before_action :set_mailer_host

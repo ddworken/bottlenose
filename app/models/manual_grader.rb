@@ -1,4 +1,5 @@
 require 'clamp'
+
 class ManualGrader < Grader
   def autograde!(assignment, sub)
     g = self.grade_for sub

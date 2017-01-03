@@ -3,8 +3,8 @@
 Devise.setup do |config|
   # ==> LDAP Configuration
   # config.ldap_logger = true
-  config.ldap_create_user = true
-  config.ldap_update_password = false
+  # config.ldap_create_user = true
+  # config.ldap_update_password = false
   # config.ldap_config = "#{Rails.root}/config/ldap.yml"
   # config.ldap_check_group_membership = false
   # config.ldap_check_group_membership_without_admin = false
@@ -110,7 +110,7 @@ Devise.setup do |config|
   config.stretches = Rails.env.test? ? 1 : 10
 
   # Setup a pepper to generate the encrypted password.
-  config.pepper = '5998425b1bf37ef9a3e469d2772f61f2f94d4809bf01d1e6df74a6f0c47dae17f32109c925e290fe448ff6cf66444676055735768c2ff51256825e420cfe3730'
+  config.pepper = '73e9bfc1f6bf4adc910a3d46e3210626ee9c60b8'
 
   # Send a notification email when the user's password is changed
   # config.send_password_change_notification = false

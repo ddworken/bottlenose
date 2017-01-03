@@ -1,4 +1,4 @@
-class Grader < ActiveRecord::Base
+class Grader < ApplicationRecord
   belongs_to :submission
   belongs_to :upload
 

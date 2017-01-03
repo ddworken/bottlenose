@@ -1,4 +1,4 @@
-class RegRequest < ActiveRecord::Base
+class RegRequest < ApplicationRecord
   enum role: [:student, :grader, :assistant, :professor]
 
   validates_presence_of :course_id, :user_id, :section_id

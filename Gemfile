@@ -1,17 +1,18 @@
 # -*- ruby -*-
 source 'https://rubygems.org'
+ruby "~> 2.4.0"
 
-gem 'rails', '~> 4.2'
+gem 'rails', git: 'https://github.com/rails/rails.git', tag: '5-0-stable'
 gem 'rack'
 gem 'i18n'
 
 gem 'devise'
-gem 'devise_ldap_authenticatable'
+#gem 'devise_ldap_authenticatable'
 
 gem 'pg'
 
-gem 'execjs'
-gem 'therubyracer'
+#gem 'execjs'
+#gem 'therubyracer'
 
 gem 'yaml_db'
 
@@ -23,14 +24,15 @@ gem 'uglifier'
 gem 'jquery-rails'
 gem 'jquery-tablesorter'
 
-gem 'bootstrap-sass', '~> 3.3.5'
-gem 'sass-rails', '>= 3.2'
+gem 'bootstrap-sass'
+gem 'sass-rails'
 gem 'bootstrap-sass-extras'
 gem 'bootstrap-datepicker-rails'
-gem 'momentjs-rails', '>= 2.9.0'
-gem 'bootstrap3-datetimepicker-rails', '~> 4.17.37'
+gem 'momentjs-rails'
+gem 'bootstrap3-datetimepicker-rails'
 gem 'font-awesome-rails'
-gem 'zipruby-compat', :require => 'zipruby', :git => "https://github.com/jawspeak/zipruby-compatibility-with-rubyzip-fork.git", :tag => "v0.3.7" # needed instead of zipruby because write_xlsx needs rubyzip, and they conflict
+#gem 'zipruby'
+#gem 'zipruby-compat', :require => 'zipruby', :git => "https://github.com/jawspeak/zipruby-compatibility-with-rubyzip-fork.git", :tag => "v0.3.7" # needed instead of zipruby because write_xlsx needs rubyzip, and they conflict
 
 gem 'delayed_job_active_record'
 gem 'daemons'
@@ -55,7 +57,8 @@ group :development, :test do
 end
 
 group :test do
-  gem 'simplecov'
+  gem 'rails-controller-testing'
+  gem 'simplecov', git: "https://github.com/colszowka/simplecov.git"
   gem 'database_cleaner'
   gem 'capybara'
   gem 'capybara-webkit' # Needs qt5-default qt5-qmake libqt5webkit5-dev

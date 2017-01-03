@@ -15,13 +15,13 @@ class SubmissionsControllerTest < ActionController::TestCase
 
   test "index should redirect" do
     sign_in @fred
-    get :index, { assignment_id: @hello.id, course_id: @cs101.id }
+    get :index, params: { assignment_id: @hello.id, course_id: @cs101.id }
     assert_response :redirect
   end
 
   test "should get new" do
     sign_in @john
-    get :new, {assignment_id: @hello.id, course_id: @cs101.id }
+    get :new, params: {assignment_id: @hello.id, course_id: @cs101.id }
     assert_response :success
   end
 
@@ -32,7 +32,7 @@ class SubmissionsControllerTest < ActionController::TestCase
     sign_in @john
 
     assert_difference('Submission.count') do
-      post :create, { 
+      post :create, params: { 
         course_id: @cs101.id, assignment_id: @hello.id,
         submission: { 
           student_notes: "@@@skip tests@@@",
@@ -46,7 +46,7 @@ class SubmissionsControllerTest < ActionController::TestCase
 
   test "should show submission" do
     sign_in @john
-    get :show, {id: @john_hello, course_id: @cs101.id, assignment_id: @hello.id }
+    get :show, params: {id: @john_hello, course_id: @cs101.id, assignment_id: @hello.id }
     assert_response :success
   end
 
@@ -54,15 +54,22 @@ class SubmissionsControllerTest < ActionController::TestCase
     skip
 
     sign_in @fred
-    get :edit, { id: @john_hello, course_id: @cs101.id, assignment_id: @hello }
+    get :edit, params: { id: @john_hello, course_id: @cs101.id, assignment_id: @hello }
     assert_response :success
   end
 
   test "should update submission" do
     skip
 
-    put :update, {id: @john_hello}, { submission: { student_notes: "Bacon!",
-      assignment_id: @john_hello.assignment_id, user_id: @john.id }}, {user_id: @fred.id}
+    sign_in @fred
+    put :update, params: {
+      id: @john_hello,
+      submission: { 
+        student_notes: "Bacon!",
+        assignment_id: @john_hello.assignment_id, 
+        user_id: @john.id 
+      }
+    }
     assert_response :redirect
   end
 

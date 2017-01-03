@@ -24,7 +24,9 @@ class SandboxesControllerTest < ActionController::TestCase
     skip
 
     assert_difference('Sandbox.count') do
-      post :create, sandbox: { name: @sandbox.name, submission_id: @sandbox.submission_id }
+      post :create, params: {
+        sandbox: { name: @sandbox.name, submission_id: @sandbox.submission_id }
+      }
     end
 
     assert_redirected_to sandbox_path(assigns(:sandbox))
@@ -33,21 +35,23 @@ class SandboxesControllerTest < ActionController::TestCase
   test "should show sandbox" do
     skip
 
-    get :show, id: @sandbox
+    get :show, params: {id: @sandbox}
     assert_response :success
   end
 
   test "should get edit" do
     skip
 
-    get :edit, id: @sandbox
+    get :edit, params: {id: @sandbox}
     assert_response :success
   end
 
   test "should update sandbox" do
     skip
 
-    patch :update, id: @sandbox, sandbox: { name: @sandbox.name, submission_id: @sandbox.submission_id }
+    patch :update, params: {
+      id: @sandbox, sandbox: { name: @sandbox.name, submission_id: @sandbox.submission_id }
+    }
     assert_redirected_to sandbox_path(assigns(:sandbox))
   end
 
@@ -55,7 +59,7 @@ class SandboxesControllerTest < ActionController::TestCase
     skip
 
     assert_difference('Sandbox.count', -1) do
-      delete :destroy, id: @sandbox
+      delete :destroy, params: { id: @sandbox }
     end
 
     assert_redirected_to sandboxes_path

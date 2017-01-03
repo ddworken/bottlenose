@@ -1,9 +1,9 @@
 require 'audit'
-require 'zipruby'
+#require 'zipruby'
 require 'fileutils'
 require 'zlib'
 
-class Upload < ActiveRecord::Base
+class Upload < ApplicationRecord
   validates :file_name,  :presence => true
   validates :user_id,    :presence => true
   validates :secret_key, :presence => true
@@ -53,8 +53,8 @@ class Upload < ActiveRecord::Base
       file.write(upload.read)
     end
 
-    if upload.content_type == "application/zip" ||
-       upload.original_filename.ends_with?(".zip")
+    if  upload.content_type == "application/zip" ||
+        upload.original_filename.ends_with?(".zip")
       ZipRuby::Archive.open(submission_path.to_s) do |ar|
         raise Exception.new("Too many files in zip!") if ar.num_files > 100
         ar.each do |zf|

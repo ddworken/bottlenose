@@ -16,7 +16,7 @@ class TeamsControllerTest < ActionController::TestCase
 
   test "should get index" do
     sign_in @fred
-    get :index, { course_id: @team.course }
+    get :index, params: { course_id: @team.course }
     assert_response :success
     assert_not_nil assigns(:active_teams)
     assert_not_nil assigns(:inactive_teams)
@@ -24,16 +24,18 @@ class TeamsControllerTest < ActionController::TestCase
 
   test "should get new" do
     sign_in @fred
-    get :new, { course_id: @team.course }
+    get :new, params: { course_id: @team.course }
     assert_response :success
   end
 
   test "should create team" do
     sign_in @fred
     assert_difference('Team.count') do
-      post :create, { course_id: @team.course,
-                      team: { course_id: @team.course.id, start_date: @team.start_date },
-                      users: [ @mark.id, @jane.id, @greg.id ] }
+      post :create, params: { 
+        course_id: @team.course,
+        team: { course_id: @team.course.id, start_date: @team.start_date },
+        users: [ @mark.id, @jane.id, @greg.id ] 
+      }
     end
 
     assert_response :redirect
@@ -42,7 +44,7 @@ class TeamsControllerTest < ActionController::TestCase
 
   test "should show team" do
     sign_in @fred
-    get :show, { id: @team, course_id: @team.course }
+    get :show, params: { id: @team, course_id: @team.course }
     assert_response :success
   end
 

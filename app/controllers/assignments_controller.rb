@@ -168,10 +168,10 @@ class AssignmentsController < CoursesController
     type = type.split("_")[1]
     
     lateness = lateness[type]
-    lateness[:type] = type
     if type == "UseCourseDefaultConfig"
       @assignment.lateness_config = @course.lateness_config
     elsif type != "reuse"
+      lateness[:type] = type
       late_config = LatenessConfig.new(lateness.permit(LatenessConfig.attribute_names - ["id"]))
       @assignment.lateness_config = late_config
       late_config.save

@@ -7,13 +7,16 @@ require 'audit'
 def col_index(name)
   @columns.find_index{|c| c.name == name}
 end
+
 def col_delta(from, to)
   col_index(from) - col_index(to)
 end
+
 def row_index(col_name, value)
   ci = col_index(col_name)
   @rows.find_index{|r| r[ci] == value} + @header_rows.length
 end
+
 def col_name(index)
   # zero-based, so col_name(0) == "A", col_name(26) == "AA"
   alph = ("A".."Z").to_a
@@ -21,7 +24,6 @@ def col_name(index)
   (q, r = (q - 1).divmod(26)) && s.prepend(alph[r]) until q.zero?
   s
 end
-
 
 
 class CourseSpreadsheet
