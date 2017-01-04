@@ -32,10 +32,10 @@ class CoursesController < ApplicationController
         .where("assignments.course_id": @course.id)
         .select("grades.*", "subs_for_gradings.assignment_id")
         .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
-        .select("users.name AS user_name")
+        .select("CONCAT(users.first_name, ' ', users.last_name) AS user_name")
         .where(score: nil)
         .where("registrations.role": Registration::roles["student"])
-        .order("assignments.due_date", "users.name")
+        .order("assignments.due_date", "user_name")
         .group_by{|r| r.assignment_id}
       @assignments = Assignment.where(id: @pending_grading.keys).map{|a| [a.id, a]}.to_h
     # elsif @registration.staff?
@@ -69,8 +69,8 @@ class CoursesController < ApplicationController
         .where.not("grades.score": nil)
         .where("grades.available": false)
         .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
-        .order("users.name")
-        .select("DISTINCT submissions.*", "users.name AS user_name")
+        .order("users.last_name")
+        .select("DISTINCT submissions.*", "users.last_name AS user_name")
     end
   end
 
@@ -94,9 +94,9 @@ class CoursesController < ApplicationController
   end
 
   def prep_sections
-    @sections = CourseSection.where(course: @course).to_a
+    @sections = Section.where(course: @course).to_a
     if @sections.count == 0
-      @sections = [CourseSection.new(course: @course, instructor: current_user)]
+      @sections = [Section.new(course: @course, instructor: current_user)]
     end
   end
 
@@ -285,10 +285,10 @@ class CoursesController < ApplicationController
     sections = course_section_params.map do |sp|
       sec = nil
       if sp[:id]
-        sec = CourseSection.find_by(id: sp[:id])
+        sec = Section.find_by(id: sp[:id])
       end
       if sec.nil?
-        sec = CourseSection.new
+        sec = Section.new
       end
       errs = false
       instructor = User.find_by(username: sp[:instructor])

@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170102202458) do
+ActiveRecord::Schema.define(version: 20170104050145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,10 +19,9 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.integer "assignment_id", null: false
     t.integer "grader_id",     null: false
     t.integer "order"
+    t.index ["assignment_id", "grader_id"], name: "unique_assignment_graders", unique: true, using: :btree
+    t.index ["assignment_id"], name: "index_assignment_graders_on_assignment_id", using: :btree
   end
-
-  add_index "assignment_graders", ["assignment_id", "grader_id"], name: "unique_assignment_graders", unique: true, using: :btree
-  add_index "assignment_graders", ["assignment_id"], name: "index_assignment_graders_on_assignment_id", using: :btree
 
   create_table "assignments", force: :cascade do |t|
     t.string   "name",                                    null: false
@@ -47,18 +45,8 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.string   "type",                  default: "Files", null: false
     t.integer  "related_assignment_id"
     t.boolean  "request_time_taken",    default: false
+    t.index ["course_id"], name: "index_assignments_on_course_id", using: :btree
   end
-
-  add_index "assignments", ["course_id"], name: "index_assignments_on_course_id", using: :btree
-
-  create_table "course_sections", force: :cascade do |t|
-    t.integer "course_id",     null: false
-    t.integer "crn",           null: false
-    t.string  "meeting_time"
-    t.integer "instructor_id", null: false
-  end
-
-  add_index "course_sections", ["crn"], name: "index_course_sections_on_crn", unique: true, using: :btree
 
   create_table "courses", force: :cascade do |t|
     t.string   "name",                               null: false
@@ -86,9 +74,8 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.string   "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
   end
-
-  add_index "delayed_jobs", ["priority", "run_at"], name: "delayed_jobs_priority", using: :btree
 
   create_table "graders", force: :cascade do |t|
     t.string  "type"
@@ -106,9 +93,8 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.float    "out_of"
     t.datetime "updated_at"
     t.boolean  "available",      default: false
+    t.index ["submission_id"], name: "index_grades_on_submission_id", using: :btree
   end
-
-  add_index "grades", ["submission_id"], name: "index_grades_on_submission_id", using: :btree
 
   create_table "inline_comments", force: :cascade do |t|
     t.integer  "submission_id",                 null: false
@@ -125,10 +111,9 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.string   "info"
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.index ["filename"], name: "index_inline_comments_on_filename", using: :btree
+    t.index ["submission_id", "grade_id", "line"], name: "index_inline_comments_on_submission_id_and_grade_id_and_line", using: :btree
   end
-
-  add_index "inline_comments", ["filename"], name: "index_inline_comments_on_filename", using: :btree
-  add_index "inline_comments", ["submission_id", "grade_id", "line"], name: "index_inline_comments_on_submission_id_and_grade_id_and_line", using: :btree
 
   create_table "lateness_configs", force: :cascade do |t|
     t.string  "type"
@@ -158,16 +143,22 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.integer  "role",          default: 0,  null: false
     t.integer  "section_id",                 null: false
     t.datetime "dropped_date"
+    t.index ["course_id"], name: "index_registrations_on_course_id", using: :btree
+    t.index ["user_id"], name: "index_registrations_on_user_id", using: :btree
   end
-
-  add_index "registrations", ["course_id"], name: "index_registrations_on_course_id", using: :btree
-  add_index "registrations", ["user_id"], name: "index_registrations_on_user_id", using: :btree
 
   create_table "sandboxes", force: :cascade do |t|
     t.string   "name"
     t.integer  "submission_id"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false
+  end
+
+  create_table "sections", force: :cascade do |t|
+    t.integer "course_id",     null: false
+    t.integer "crn"
+    t.string  "meeting_time"
+    t.integer "instructor_id", null: false
   end
 
   create_table "submissions", force: :cascade do |t|
@@ -187,28 +178,25 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.float    "score"
     t.string   "type",                default: "Files", null: false
     t.float    "time_taken"
+    t.index ["assignment_id"], name: "index_submissions_on_assignment_id", using: :btree
+    t.index ["user_id", "assignment_id"], name: "index_submissions_on_user_id_and_assignment_id", using: :btree
+    t.index ["user_id"], name: "index_submissions_on_user_id", using: :btree
   end
-
-  add_index "submissions", ["assignment_id"], name: "index_submissions_on_assignment_id", using: :btree
-  add_index "submissions", ["user_id", "assignment_id"], name: "index_submissions_on_user_id_and_assignment_id", using: :btree
-  add_index "submissions", ["user_id"], name: "index_submissions_on_user_id", using: :btree
 
   create_table "subs_for_gradings", force: :cascade do |t|
     t.integer "user_id",       null: false
     t.integer "assignment_id", null: false
     t.integer "submission_id", null: false
+    t.index ["user_id", "assignment_id"], name: "unique_sub_per_user_assignment", unique: true, using: :btree
   end
-
-  add_index "subs_for_gradings", ["user_id", "assignment_id"], name: "unique_sub_per_user_assignment", unique: true, using: :btree
 
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["team_id", "user_id"], name: "unique_team_memebers", unique: true, using: :btree
   end
-
-  add_index "team_users", ["team_id", "user_id"], name: "unique_team_memebers", unique: true, using: :btree
 
   create_table "teams", force: :cascade do |t|
     t.integer  "course_id"
@@ -231,21 +219,18 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.string   "secret_key"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.index ["secret_key"], name: "index_uploads_on_secret_key", unique: true, using: :btree
   end
-
-  add_index "uploads", ["secret_key"], name: "index_uploads_on_secret_key", unique: true, using: :btree
 
   create_table "user_submissions", force: :cascade do |t|
     t.integer "user_id"
     t.integer "submission_id"
+    t.index ["submission_id"], name: "index_user_submissions_on_submission_id", using: :btree
+    t.index ["user_id", "submission_id"], name: "index_user_submissions_on_user_id_and_submission_id", unique: true, using: :btree
+    t.index ["user_id"], name: "index_user_submissions_on_user_id", using: :btree
   end
 
-  add_index "user_submissions", ["submission_id"], name: "index_user_submissions_on_submission_id", using: :btree
-  add_index "user_submissions", ["user_id", "submission_id"], name: "index_user_submissions_on_user_id_and_submission_id", unique: true, using: :btree
-  add_index "user_submissions", ["user_id"], name: "index_user_submissions_on_user_id", using: :btree
-
   create_table "users", force: :cascade do |t|
-    t.string   "name",                                null: false
     t.string   "email"
     t.boolean  "site_admin"
     t.datetime "created_at"
@@ -265,11 +250,10 @@ ActiveRecord::Schema.define(version: 20170102202458) do
     t.text     "nickname"
     t.text     "profile"
     t.integer  "nuid"
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["nuid"], name: "index_users_on_nuid", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
+    t.index ["username"], name: "index_users_on_username", unique: true, using: :btree
   end
-
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["nuid"], name: "index_users_on_nuid", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
-  add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
 
 end

@@ -7,7 +7,7 @@ class RegistrationsController < CoursesController
   def index
     @students = @course.students
     @staff = @course.staff
-    @requests = @course.reg_requests.joins(:user).order('role desc', 'name').includes(:user)
+    @requests = @course.reg_requests.joins(:user).order('role desc', 'last_name').includes(:user)
   end
 
   def new

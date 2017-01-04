@@ -25,10 +25,10 @@ class ActiveSupport::TestCase
     @fred     = create(:user, name: "Fred McTeacher", first_name: "Fred", last_name: "McTeacher")
     @john     = create(:user, name: "John McStudent", first_name: "John", last_name: "McStudent")
     @cs101    = create(:course, public: true)
-    @section  = create(:course_section, course: @cs101, instructor: @fred, crn: 12345)
-    @fred_reg = create(:registration, course: @cs101, user: @fred, section_id: @section.crn,
+    @section  = create(:section, course: @cs101, instructor: @fred, crn: 12345)
+    @fred_reg = create(:registration, course: @cs101, user: @fred, section: @section,
                        role: Registration::roles[:professor])
-    @john_reg = create(:registration, course: @cs101, user: @john, section_id: @section.crn)
+    @john_reg = create(:registration, course: @cs101, user: @john, section: @section)
   end
 
   def simulated_upload(user, file)

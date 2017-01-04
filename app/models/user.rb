@@ -4,7 +4,8 @@ require 'audit'
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-  devise :database_authenticatable, :recoverable, :rememberable, :trackable, :registerable 
+  devise :ldap_authenticatable, :database_authenticatable, :recoverable, 
+    :rememberable, :trackable, :registerable 
   has_many :courses, through: :registrations
   has_many :registrations, dependent: :destroy
 
@@ -62,6 +63,16 @@ class User < ApplicationRecord
     if res[:mail]
       self.email = res[:mail][0]
     end
+  end
+
+  def name
+    "#{first_name} #{last_name}"
+  end
+
+  def name=(nn)
+    ns = nn.split(/\s+/).rotate(-1)
+    last_name = ns[0]
+    first_name = ns[1]
   end
 
   def sort_name

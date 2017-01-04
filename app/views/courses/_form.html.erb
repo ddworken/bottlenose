@@ -41,7 +41,7 @@
         </tr>
         <% end %>
       </table>
-      <% section_text = render "courses/section", f: f, section: CourseSection.new, index: "new_section" %>
+      <% section_text = render "courses/section", f: f, section: Section.new, index: "new_section" %>
       <%= content_tag :span, "Add section", class: 'btn btn-default',
                       id: "add-section",
                       data: {on: :click, call: "add_section", args: ["#{section_text}"]} %>

@@ -5,7 +5,7 @@ class UsersController < ApplicationController
       return
     end
 
-    @users = User.order(:name)
+    @users = User.order(:last_name, :first_name)
     @user  = User.new
   end
 

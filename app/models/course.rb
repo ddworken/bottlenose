@@ -1,7 +1,9 @@
 class Course < ApplicationRecord
   belongs_to :term
 
-  has_many :course_sections, dependent: :destroy
+  has_many :sections, dependent: :destroy
+  accepts_nested_attributes_for :sections
+
   has_many :registrations, dependent: :destroy
   has_many :users, through: :registrations
 

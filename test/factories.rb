@@ -1,14 +1,8 @@
 
 FactoryGirl.define do
-  sequence :user_name do |n|
-    letters = ('A'..'Z').to_a
-    first = letters[(n * 17) % 26] + "#{n}"
-    last  = letters[(n * 13) % 26] + "#{n}"
-    "#{first} #{last}"
-  end
-
   factory :user do
-    name  { generate(:user_name) }
+    sequence(:first_name) {|n| "A#{n}"}
+    sequence(:last_name) {|n| "B#{n}"}
     password "password"
     username { name.downcase.gsub(/\W/, '_') }
     email { username + "@example.com" }
@@ -38,9 +32,14 @@ FactoryGirl.define do
 
     sequence(:name) {|n| "Computing #{n}" }
     footer "Link to Piazza: *Link*"
+
+    after(:create) do |course|
+      course.sections = [create(:section, course: course)]
+      course.save!
+    end
   end
 
-  factory :course_section do
+  factory :section do
     course
     sequence(:crn) {|n| 1000 + n }
     sequence(:meeting_time) {|n| "Tuesday #{n}:00" }
@@ -96,7 +95,7 @@ FactoryGirl.define do
   factory :registration do
     user
     course
-    association :section, factory: :course_section
+    section
 
     role 0
     show_in_lists true
@@ -105,7 +104,7 @@ FactoryGirl.define do
   factory :reg_request do
     user
     course
-    association :section, factory: :course_section
+    section
 
     notes "Let me in!"
   end

@@ -76,9 +76,8 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_up) do |user|
-      user.permit(:name, :email, :username, :password, :password_confirmation)
-    end
+    devise_parameter_sanitizer.permit(:sign_up,
+      keys: [:name, :email, :username, :password, :password_confirmation])
   end
 
   def back_or_else(target)

@@ -7,7 +7,7 @@ gem 'rack'
 gem 'i18n'
 
 gem 'devise'
-#gem 'devise_ldap_authenticatable'
+gem 'devise_ldap_authenticatable'
 
 gem 'pg'
 
