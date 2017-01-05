@@ -5,8 +5,10 @@ class CoursesController < ApplicationController
   layout 'course'
 
   before_action :require_current_user, except: [:public]
-  before_action :load_and_verify_course_registration, except: [:public]
-  before_action :require_admin_or_prof, only: [:update, :edit, :gradesheet]
+  before_action :load_and_verify_course_registration, 
+    except: [:public, :index, :new, :create, :section_form]
+  before_action :require_admin_or_prof, 
+    only: [:new, :create, :update, :edit, :gradesheet]
 
   def index
     @courses_by_term = Course.order(:name).group_by(&:term)
@@ -18,29 +20,8 @@ class CoursesController < ApplicationController
   def show
     # For now, show all grading to all staff
     if current_user_staff_for?(@course)
-      @pending_grading =
-        # only use submissions that are being used for grading, but this may produce duplicates for team submissions
-        # only pick submissions from this course
-        # only pick non-staff submissions
-        # hang on to the assignment id
-        # only keep unfinished graders
-        # sort the assignments
-        Grade
-        .joins("INNER JOIN subs_for_gradings ON grades.submission_id = subs_for_gradings.submission_id")
-        .joins("INNER JOIN assignments ON subs_for_gradings.assignment_id = assignments.id")
-        .joins("INNER JOIN registrations ON subs_for_gradings.user_id = registrations.user_id")
-        .where("assignments.course_id": @course.id)
-        .select("grades.*", "subs_for_gradings.assignment_id")
-        .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
-        .select("CONCAT(users.first_name, ' ', users.last_name) AS user_name")
-        .where(score: nil)
-        .where("registrations.role": Registration::roles["student"])
-        .order("assignments.due_date", "user_name")
-        .group_by{|r| r.assignment_id}
+      @pending_grading = @course.pending_grading
       @assignments = Assignment.where(id: @pending_grading.keys).map{|a| [a.id, a]}.to_h
-    # elsif @registration.staff?
-    #   @pending_grading = []
-    #   @assignments = []
     end
 
     if current_user_prof_for?(@course)
@@ -48,7 +29,7 @@ class CoursesController < ApplicationController
       people = @course.users.to_a
       @assns = @course.assignments.to_a.sort_by(&:due_date)
       all_subs = Assignment.submissions_for(people, @assns).group_by(&:assignment_id)
-      used_subs = SubsForGrading.where(assignment_id: @assns.map(&:id)).group_by(&:assignment_id)
+      used_subs = UsedSub.where(assignment_id: @assns.map(&:id)).group_by(&:assignment_id)
       @assns.each do |a|
         next unless all_subs[a.id]
         a_subs = all_subs[a.id].group_by(&:for_user)
@@ -61,21 +42,15 @@ class CoursesController < ApplicationController
           end
         end
       end
-      @unpublished =
-        Submission
-        .joins("INNER JOIN subs_for_gradings ON submissions.id = subs_for_gradings.submission_id")
-        .where("subs_for_gradings.assignment_id": @assns.map(&:id))
-        .joins("INNER JOIN grades ON grades.submission_id = submissions.id")
-        .where.not("grades.score": nil)
-        .where("grades.available": false)
-        .joins("INNER JOIN users ON subs_for_gradings.user_id = users.id")
-        .order("users.last_name")
-        .select("DISTINCT submissions.*", "users.last_name AS user_name")
+      @unpublished = @course.unpublished_submissions
     end
   end
 
   def new
-    new_with_errors nil
+    @course = Course.new
+    @course.sections = [Section.new(instructor: current_user)]
+
+    render :new, layout: 'application'
   end
 
   def edit
@@ -108,26 +83,26 @@ class CoursesController < ApplicationController
 
     @course = Course.new(course_params)
 
-    unless course_section_params.count > 0
+    unless @course.sections.size > 0
       @course.errors[:base] << "Need to create at least one section"
-      new_with_errors @course.errors
+      render :new, layout: 'application'
       return
     end
 
-    if set_default_lateness_config and @course.save and create_sections
+    #if set_default_lateness_config and @course.save and create_sections
+    if set_default_lateness_config and @course.save
       redirect_to course_path(@course), notice: 'Course was successfully created.'
     else
-      @course.destroy unless @course.new_record?
-      new_with_errors @course.errors
+      render :new, layout: 'application'
       return
     end
   end
 
 
   def update
-    @course.assign_attributes(course_params)
+    @course.update_attributes(course_params)
 
-    if set_default_lateness_config and create_sections and @course.save
+    if set_default_lateness_config and @course.save
       redirect_to course_path(@course), notice: 'Course was successfully updated.'
     else
       prep_sections
@@ -193,25 +168,7 @@ class CoursesController < ApplicationController
     CourseSpreadsheet.new(@course)
   end
 
-  def new_with_errors(errs)
-    @course = Course.new
-    if errs
-      merge_errors @course.errors, errs
-    end
-    prep_sections
-    # We can't use the course layout if we don't have a @course.
-    render :new, layout: 'application'
-  end
-  
   def load_and_verify_course_registration
-    # We can't find the course for the action 'courses#index'.
-    if controller_name == 'courses' &&
-       (action_name == 'index' ||
-        action_name == 'new' ||
-        action_name == 'create')
-      return
-    end
-
     @course = Course.find_by(id: params[:course_id] || params[:id])
 
     if @course.nil?
@@ -240,8 +197,8 @@ class CoursesController < ApplicationController
   end
 
   def course_params
-    params[:course].permit(:name, :footer, :total_late_days, :private, :public, :course_section,
-                           :term_id, :sub_max_size)
+    params[:course].permit(:name, :footer, :total_late_days, :private, :public, :term_id, :sub_max_size, 
+                           sections_attributes: [:_destroy, :id, :crn, :instructor, :meeting_time])
   end
 
   def course_section_params
@@ -280,60 +237,6 @@ class CoursesController < ApplicationController
 
     return true
   end
-
-  def create_sections
-    sections = course_section_params.map do |sp|
-      sec = nil
-      if sp[:id]
-        sec = Section.find_by(id: sp[:id])
-      end
-      if sec.nil?
-        sec = Section.new
-      end
-      errs = false
-      instructor = User.find_by(username: sp[:instructor])
-      if instructor.nil?
-        @course.errors[:Section] << "instructor could not be found with username #{sp[:instructor]}"
-        errs = true
-      end
-      if sp[:crn].nil? or sp[:crn].empty?
-        @course.errors[:Section] << "CRN must be present"
-        errs = true
-      else
-        Audit.log "Creating section with CRN: #{sp[:crn]}\n"
-      end
-      if sp[:meeting_time].nil? or sp[:meeting_time].length < 3
-        @course.errors[:Section] << "meeting time is missing or too short"
-        errs = true
-      end
-      return if errs
-      sec.assign_attributes(instructor: instructor,
-                            crn: sp[:crn],
-                            meeting_time: sp[:meeting_time],
-                            course: @course)
-      if sec.save
-        sec
-      else
-        merge_errors @course.errors, sec.errors
-        return
-      end
-    end
-
-    sections.each do |s|
-      reg = Registration.find_or_create_by(user: s.instructor,
-                                           course: @course,
-                                           section: s)
-      if reg.nil?
-        @course.errors[:base] << reg.errors
-        return false
-      else
-        reg.update_attributes(role: :professor,
-                              show_in_lists: false)
-      end
-    end
-    return true
-  end
-    
 
   def plural(n, sing, pl = nil)
     if n == 1

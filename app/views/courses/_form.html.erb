@@ -35,16 +35,19 @@
           <th class="col-sm-6">Meeting time</th>
           <th></th>
         </tr>
-        <% @sections.each_with_index do |s, i| %>
-        <tr class="form-group row">
-          <%= render "courses/section", f: f, section: s, index: i %>
-        </tr>
+        <%= f.fields_for :sections do |f_s| %>
+          <%= render "courses/section", f_s: f_s %>
+        <% end %>
+
+      </table>
+      <table style="display: none" id="section-template">
+        <%= f.fields_for(:sections, Section.new, child_index: 'ZXXZ') do |f_s| %>
+          <%= render "courses/section", f_s: f_s %>
         <% end %>
       </table>
-      <% section_text = render "courses/section", f: f, section: Section.new, index: "new_section" %>
-      <%= content_tag :span, "Add section", class: 'btn btn-default',
-                      id: "add-section",
-                      data: {on: :click, call: "add_section", args: ["#{section_text}"]} %>
+      <p style="text-align: right">
+        <a href="#" id="add-section-link" class="btn btn-default">Add Section</a>
+      </p>
     </div>
     <div class="form-group">
       <p><strong>Late Penalty</strong></p>
@@ -79,33 +82,48 @@
   </div>
 <% end %>
 <script>
-  $(function() { enableReflectiveCalls(); });
-  function add_section(content) {
-    var new_id = new Date().getTime();
-    var regexp = new RegExp("new_section", "g");
-    var newrow = $("<tr class='form-inline row'>").html(content.replace(regexp, new_id));
-    $("#sections").append(newrow);
-    newrow.find("span.findUser").each(function(i) { enableLookupUser($(this)); });
-    newrow.find("input.numeric").on("keypress", validateNumericInput);
-    enableReflectiveCalls();
-  }
-  $("span.findUser").each(function(i) { enableLookupUser($(this)); });
-  function enableLookupUser(foundIt) {
-    var username = foundIt.prev();
-    username.on("blur", function() {
-      $.ajax({
-        type: "GET",
-        url: "<%= lookup_users_path %>",
-        contentType: 'application/json; charset=UTF-8',
-        data: {username: username.val()},
-        success: function(data) {
-          foundIt.text(" (" + data.name + ")");
-        },
-        error: function(xkr, status, error) {
-          foundIt.text(" (error looking up username)");
-        }
-      });
-    });
-  }
-  $("form").submit(ensureValidNumericInputOnSubmit);
+
+$(function() { enableReflectiveCalls(); });
+
+function add_section(content) {
+  var new_id = new Date().getTime();
+  var regexp = new RegExp("new_section", "g");
+  var newrow = $("<tr class='form-inline row'>").html(content.replace(regexp, new_id));
+  $("#sections").append(newrow);
+  newrow.find("span.findUser").each(function(i) { enableLookupUser($(this)); });
+  newrow.find("input.numeric").on("keypress", validateNumericInput);
+  enableReflectiveCalls();
+}
+
+$(function() {
+  $("span.findUser").each(function(i) { 
+    var span = $(this);
+    enableLookupUser(span);
+    lookup_user(span.prev(), span);
+  });
+});
+
+function lookup_user(username, foundIt) {
+  $.ajax({
+    type: "GET",
+    url: "<%= lookup_users_path %>",
+    contentType: 'application/json; charset=UTF-8',
+    data: {username: username.val()},
+    success: function(data) {
+      foundIt.text(" (" + data.name + ")");
+    },
+    error: function(xkr, status, error) {
+      foundIt.text(" (error looking up username)");
+    }
+  });
+}
+ 
+function enableLookupUser(foundIt) {
+  var username = foundIt.prev();
+  username.on("blur", function() {
+    lookup_user(username, foundIt);
+  });
+}
+
+$("form").submit(ensureValidNumericInputOnSubmit);
 </script>

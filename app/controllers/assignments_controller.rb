@@ -35,6 +35,7 @@ class AssignmentsController < CoursesController
     @assignment = Assignment.new
     @assignment.course_id = @course.id
     @assignment.due_date = (Time.now + 1.week).end_of_day.strftime("%Y/%m/%d %H:%M")
+    @assignment.points_available = 5
     last_assn = @course.assignments.order(created_at: :desc).first
     if last_assn
       @assignment.points_available = last_assn.points_available

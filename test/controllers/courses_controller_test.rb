@@ -39,11 +39,13 @@ class CoursesControllerTest < ActionController::TestCase
         course: {
           name: "Worst Course Ever", 
           term_id: @term.id,
-          course_section: {values: {
-            instructor: @fred.username,
-            crn: "999",
-            meeting_time: "TBD",
-          }},
+          sections_attributes: {
+            "0" => {
+              instructor: @fred.username,
+              crn: "999",
+              meeting_time: "TBD",
+            }
+          },
         },
         lateness: {
           type: "_FixedDaysConfig",

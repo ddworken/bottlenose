@@ -238,7 +238,7 @@ class CourseSpreadsheet
     course.assignments.where(type: "exam").order(:due_date).each do |exam|
       used_subs = exam.all_used_subs.to_a
       grades = Gradesheet.new(exam, used_subs)
-      subs_for_grading = SubsForGrading.where(assignment: exam).to_a
+      subs_for_grading = UsedSub.where(assignment: exam).to_a
 
       sheet.columns.push(Col.new(exam.name, "Number"))
       questions = exam.flattened_questions
@@ -345,9 +345,9 @@ class CourseSpreadsheet
     hw_cols = []
 
     course.assignments.where.not(type: "exam").order(:due_date).each do |assn|
-      used_subs = assn.all_used_subs.to_a
+      used_subs = assn.used_subs.to_a
       grades = Gradesheet.new(assn, used_subs)
-      subs_for_grading = SubsForGrading.where(assignment: assn).to_a
+      subs_for_grading = UsedSub.where(assignment: assn).to_a
       
       sheet.columns.push(Col.new(assn.name, "Number"))
       grades.configs.each_with_index do |g, i|

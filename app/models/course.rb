@@ -2,7 +2,9 @@ class Course < ApplicationRecord
   belongs_to :term
 
   has_many :sections, dependent: :destroy
-  accepts_nested_attributes_for :sections
+  accepts_nested_attributes_for :sections, 
+    reject_if: lambda { |a| a[:instructor].blank? },
+    allow_destroy: true
 
   has_many :registrations, dependent: :destroy
   has_many :users, through: :registrations
@@ -103,7 +105,7 @@ class Course < ApplicationRecord
 
   def score_summary
     assns = self.assignments.where("available < ?", DateTime.current)
-    subs = SubsForGrading.where(user: self.students, assignment: assns)
+    subs = UsedSub.where(user: self.students, assignment: assns)
       .joins(:submission)
       .select(:user_id, :assignment_id, :score)
       .to_a
@@ -130,6 +132,41 @@ class Course < ApplicationRecord
       ans.push ({s: s, dropped: dropped, min: min, cur: cur, max: max, pending: adjust})
     end
     ans
+  end
+
+  def pending_grading
+    # only use submissions that are being used for grading, but this may produce duplicates 
+    #    for team submissions
+    # only pick submissions from this course
+    # only pick non-staff submissions
+    # hang on to the assignment id
+    # only keep unfinished graders
+    # sort the assignments
+    Grade
+    .joins("INNER JOIN used_subs ON grades.submission_id = used_subs.submission_id")
+    .joins("INNER JOIN assignments ON used_subs.assignment_id = assignments.id")
+    .joins("INNER JOIN registrations ON used_subs.user_id = registrations.user_id")
+    .where("assignments.course_id": self.id)
+    .select("grades.*", "used_subs.assignment_id")
+    .joins("INNER JOIN users ON used_subs.user_id = users.id")
+    .select("CONCAT(users.first_name, ' ', users.last_name) AS user_name")
+    .where(score: nil)
+    .where("registrations.role": Registration::roles["student"])
+    .order("assignments.due_date", "user_name")
+    .group_by{|r| r.assignment_id }
+  end
+
+  def unpublished_submissions
+    assns = assignments.to_a.sort_by(&:due_date)
+    Submission
+    .joins("INNER JOIN used_subs ON submissions.id = used_subs.submission_id")
+    .where("used_subs.assignment_id": assns.map(&:id))
+    .joins("INNER JOIN grades ON grades.submission_id = submissions.id")
+    .where.not("grades.score": nil)
+    .where("grades.available": false)
+    .joins("INNER JOIN users ON used_subs.user_id = users.id")
+    .order("users.last_name")
+    .select("DISTINCT submissions.*", "users.last_name AS user_name")
   end
 
   #   as = self.assignments.includes(:subs_for_gradings)

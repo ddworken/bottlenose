@@ -10,18 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170104050145) do
+ActiveRecord::Schema.define(version: 20170104213536) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
-
-  create_table "assignment_graders", force: :cascade do |t|
-    t.integer "assignment_id", null: false
-    t.integer "grader_id",     null: false
-    t.integer "order"
-    t.index ["assignment_id", "grader_id"], name: "unique_assignment_graders", unique: true, using: :btree
-    t.index ["assignment_id"], name: "index_assignment_graders_on_assignment_id", using: :btree
-  end
 
   create_table "assignments", force: :cascade do |t|
     t.string   "name",                                    null: false
@@ -80,8 +72,9 @@ ActiveRecord::Schema.define(version: 20170104050145) do
   create_table "graders", force: :cascade do |t|
     t.string  "type"
     t.float   "avail_score"
-    t.string  "params"
+    t.text    "params"
     t.integer "upload_id"
+    t.integer "assignment_id", null: false
   end
 
   create_table "grades", force: :cascade do |t|
@@ -183,13 +176,6 @@ ActiveRecord::Schema.define(version: 20170104050145) do
     t.index ["user_id"], name: "index_submissions_on_user_id", using: :btree
   end
 
-  create_table "subs_for_gradings", force: :cascade do |t|
-    t.integer "user_id",       null: false
-    t.integer "assignment_id", null: false
-    t.integer "submission_id", null: false
-    t.index ["user_id", "assignment_id"], name: "unique_sub_per_user_assignment", unique: true, using: :btree
-  end
-
   create_table "team_users", force: :cascade do |t|
     t.integer  "team_id"
     t.integer  "user_id"
@@ -222,6 +208,13 @@ ActiveRecord::Schema.define(version: 20170104050145) do
     t.index ["secret_key"], name: "index_uploads_on_secret_key", unique: true, using: :btree
   end
 
+  create_table "used_subs", force: :cascade do |t|
+    t.integer "user_id",       null: false
+    t.integer "assignment_id", null: false
+    t.integer "submission_id", null: false
+    t.index ["user_id", "assignment_id"], name: "unique_sub_per_user_assignment", unique: true, using: :btree
+  end
+
   create_table "user_submissions", force: :cascade do |t|
     t.integer "user_id"
     t.integer "submission_id"
@@ -245,9 +238,9 @@ ActiveRecord::Schema.define(version: 20170104050145) do
     t.inet     "current_sign_in_ip"
     t.inet     "last_sign_in_ip"
     t.string   "username"
-    t.text     "first_name"
-    t.text     "last_name"
-    t.text     "nickname"
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "nickname"
     t.text     "profile"
     t.integer  "nuid"
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree

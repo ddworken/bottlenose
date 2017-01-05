@@ -1,5 +1,5 @@
 class Grader < ApplicationRecord
-  belongs_to :submission
+  belongs_to :assignment
   belongs_to :upload
 
   def self.unique

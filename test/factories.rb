@@ -50,12 +50,7 @@ FactoryGirl.define do
     type "ManualGrader"
     avail_score 100.0
     params ""
-  end
-
-  factory :assignment_grader do
-    grader
     assignment
-    order 0
   end
 
   factory :assignment do

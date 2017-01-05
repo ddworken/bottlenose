@@ -1,4 +1,4 @@
-class SubsForGrading < ApplicationRecord
+class UsedSub < ApplicationRecord
   belongs_to :submission
   belongs_to :user
   belongs_to :assignment

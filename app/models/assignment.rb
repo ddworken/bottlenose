@@ -8,19 +8,19 @@ class Assignment < ApplicationRecord
   enum assignment_kind: [:files, :questions, :exam]
   enum question_kind: [:yes_no, :true_false, :multiple_choice, :numeric, :text]
   
-  belongs_to :blame, :class_name => "User", :foreign_key => "blame_id"
+  belongs_to :blame, class_name: "User", foreign_key: "blame_id"
 
   belongs_to :course
 
   belongs_to :lateness_config
 
-  belongs_to :related_assignment, :class_name => "Assignment", :foreign_key => "related_assignment_id"
+  belongs_to :related_assignment, class_name: "Assignment", foreign_key: "related_assignment_id"
   
   has_many :submissions, :dependent => :restrict_with_error
-  has_many :subs_for_gradings, :dependent => :destroy
+  has_many :used_subs, :dependent => :destroy
 
-  has_many :assignment_graders, :dependent => :destroy
-  has_many :graders, through: :assignment_graders
+  has_many :graders
+  accepts_nested_attributes_for :graders
 
   validates :name,      :uniqueness => { :scope => :course_id }
   validates :name,      :presence => true
@@ -175,14 +175,11 @@ class Assignment < ApplicationRecord
     
   def used_submissions
     # Only those unique submissions that are marked as used-for-grading for this assignment
-    all_used_subs.distinct
-  end
-  def all_used_subs
-    Submission.joins(:subs_for_gradings).where(assignment_id: self.id)
+    used_subs.distinct
   end
 
   def used_sub_for(user)
-    ans = SubsForGrading.find_by(user_id: user.id, assignment_id: self.id)
+    ans = UsedSub.find_by(user_id: user.id, assignment_id: self.id)
     if ans.nil?
       ans
     else

@@ -22,3 +22,12 @@ nat = User.create!(
   site_admin: true,
   encrypted_password: pwhash("bacon88"),
 )
+
+ben = User.create!(
+  username: "blerner",
+  first_name: "Ben",
+  last_name: "Lerner",
+  nickname: "Ben",
+  site_admin: true,
+  encrypted_password: pwhash("bacon99"),
+)

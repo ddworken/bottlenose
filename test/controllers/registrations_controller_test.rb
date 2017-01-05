@@ -20,11 +20,15 @@ class RegistrationsControllerTest < ActionController::TestCase
     assert_match "You need to log in first", flash[:alert]
   end
 
-  test "non-teacher should not get index" do
+  test "unregistered user should not get index" do
     sign_in @john
     get :index, params: {:course_id => @cs301.id}
     assert_response :redirect
-    assert_match "Must be an admin or staff", flash[:alert]
+    assert_match "not registered", flash[:alert]
+  end
+
+  test "non-teacher should got get index" do
+    skip
   end
 
   test "should create registration" do

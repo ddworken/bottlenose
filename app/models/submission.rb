@@ -42,12 +42,12 @@ class Submission < ApplicationRecord
   def set_used_sub!
     if team
       team.users.each do |u|
-        used = SubsForGrading.find_or_initialize_by(user_id: u.id, assignment_id: assignment.id)
+        used = UsedSub.find_or_initialize_by(user_id: u.id, assignment_id: assignment.id)
         used.submission_id = self.id
         used.save!
       end
     else
-      used = SubsForGrading.find_or_initialize_by(user_id: user.id, assignment_id: assignment_id)
+      used = UsedSub.find_or_initialize_by(user_id: user.id, assignment_id: assignment_id)
       used.submission_id = self.id
       used.save!
     end

@@ -134,7 +134,7 @@ class User < ApplicationRecord
     else
       assn_ids = assignments.pluck(:id)
     end
-    SubsForGrading.where(user: self, assignment_id: assn_ids).joins(:submission)
+    UsedSub.where(user: self, assignment_id: assn_ids).joins(:submission)
   end
 
   def course_staff?(course)

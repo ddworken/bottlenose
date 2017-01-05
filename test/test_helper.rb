@@ -26,9 +26,8 @@ class ActiveSupport::TestCase
     @john     = create(:user, name: "John McStudent", first_name: "John", last_name: "McStudent")
     @cs101    = create(:course, public: true)
     @section  = create(:section, course: @cs101, instructor: @fred, crn: 12345)
-    @fred_reg = create(:registration, course: @cs101, user: @fred, section: @section,
-                       role: Registration::roles[:professor])
-    @john_reg = create(:registration, course: @cs101, user: @john, section: @section)
+    @fred_reg = Registration.find_by(user: @fred, course: @cs101)
+    @john_reg = Registration.find_or_create_by(user: @john, course: @cs101, section: @section)
   end
 
   def simulated_upload(user, file)
