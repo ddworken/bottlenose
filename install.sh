@@ -13,17 +13,17 @@ host    all             all             127.0.0.1/32            trust
 host    all             all             ::1/128                 trust" > /etc/postgresql/9.4/main/pg_hba.conf'
 sudo service postgresql restart
 # Install rbenv
-git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
-/home/vagrant/.rbenv/bin/rbenv init -
+sudo -i -u vagrant git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+sudo -i -u vagrant git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+sudo -i -u vagrant /home/vagrant/.rbenv/bin/rbenv init -
 # Install ruby
-/home/vagrant/.rbenv/bin/rbenv install
+sudo -i -u vagrant /home/vagrant/.rbenv/bin/rbenv install
 # Install bundler
-gem install bundler
-rbenv rehash
+sudo -i -u vagrant gem install bundler
+sudo -i -u vagrant rbenv rehash
 # Install bottlenose's dependencies
-bundle install
+sudo -i -u vagrant bundle install
 # Create the database.
-rake db:create
+sudo -i -u vagrant rake db:create
 # Run database migrations.
-rake db:migrate
+sudo -i -u vagrant rake db:migrate
