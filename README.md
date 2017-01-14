@@ -120,7 +120,27 @@ createuser -d bottlenose
 exit
 ```
 
-TODO: Talk about the pg_hba.conf file.
+Then configure the `pg_hba.conf` file to trust local connections
+
+```sh
+sudo rm /etc/postgresql/9.4/main/pg_hba.conf
+sudo nano /etc/postgresql/9.4/main/pg_hba.conf
+```
+
+Paste in the below contents:
+
+```
+local   all             postgres                                trust
+local   all             all                                     trust
+host    all             all             127.0.0.1/32            trust
+host    all             all             ::1/128                 trust
+```
+
+Then restart postgresql
+
+```sh
+sudo service postgresql restart
+```
 
 ### Ruby
 
