@@ -13,8 +13,8 @@ host    all             all             127.0.0.1/32            trust
 host    all             all             ::1/128                 trust" > /etc/postgresql/9.4/main/pg_hba.conf'
 sudo service postgresql restart
 # Install rbenv
-sudo -i -u vagrant git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-sudo -i -u vagrant git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build
+sudo -i -u vagrant git clone https://github.com/rbenv/rbenv.git /home/vagrant/.rbenv
+sudo -i -u vagrant git clone https://github.com/rbenv/ruby-build.git /home/vagrant/.rbenv/plugins/ruby-build
 sudo -i -u vagrant /home/vagrant/.rbenv/bin/rbenv init -
 # Install ruby
 sudo -i -u vagrant /home/vagrant/.rbenv/bin/rbenv install
